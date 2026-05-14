@@ -72,7 +72,7 @@ training:
   
   # Misc
   group_by_length: true                     # Group similar lengths for efficiency
-  report_to: "wandb"                        # Set to "none" to disable W&B
+  report_to: "none"                        # Set to "wandb" to enable W&B tracking
   seed: 42
 
 # --- Generation Config (for inference) ---
