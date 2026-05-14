@@ -217,7 +217,6 @@ def train(config: dict) -> None:
         group_by_length=train_cfg.get("group_by_length", True),
         report_to=train_cfg.get("report_to", "wandb"),
         seed=train_cfg.get("seed", 42),
-        max_seq_length=train_cfg.get("max_seq_length", 2048),
         push_to_hub=hub_cfg.get("push_to_hub", False),
         hub_model_id=hub_cfg.get("hub_model_id"),
         hub_token=hub_cfg.get("hub_token"),
@@ -225,6 +224,10 @@ def train(config: dict) -> None:
     
     # ── Step 6: Initialize SFTTrainer ──
     print("🏋️ Initializing SFTTrainer...")
+    
+    # Set max sequence length via tokenizer
+    max_seq_length = train_cfg.get("max_seq_length", 2048)
+    tokenizer.model_max_length = max_seq_length
     
     trainer = SFTTrainer(
         model=model,
