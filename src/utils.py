@@ -47,15 +47,15 @@ def print_gpu_info() -> None:
         
         for i in range(num_gpus):
             name = torch.cuda.get_device_name(i)
-            memory_total = torch.cuda.get_device_properties(i).total_memory / (1024**3)
-            memory_reserved = torch.cuda.memory_reserved(i) / (1024**3)
-            memory_allocated = torch.cuda.memory_allocated(i) / (1024**3)
+            free_mem, total_mem = torch.cuda.mem_get_info(i)
+            memory_total = total_mem / (1024**3)
+            memory_free = free_mem / (1024**3)
+            memory_used = memory_total - memory_free
             
             print(f"\n  GPU {i}: {name}")
             print(f"    Total Memory:     {memory_total:.1f} GB")
-            print(f"    Reserved Memory:  {memory_reserved:.1f} GB")
-            print(f"    Allocated Memory: {memory_allocated:.1f} GB")
-            print(f"    Free Memory:      {memory_total - memory_reserved:.1f} GB")
+            print(f"    Used Memory:      {memory_used:.1f} GB")
+            print(f"    Free Memory:      {memory_free:.1f} GB")
     else:
         print("  CUDA Available: ❌")
         print("  ⚠️  No GPU detected. Training will be very slow on CPU.")
