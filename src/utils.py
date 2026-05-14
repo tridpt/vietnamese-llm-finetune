@@ -47,7 +47,7 @@ def print_gpu_info() -> None:
         
         for i in range(num_gpus):
             name = torch.cuda.get_device_name(i)
-            memory_total = torch.cuda.get_device_properties(i).total_mem / (1024**3)
+            memory_total = torch.cuda.get_device_properties(i).total_memory / (1024**3)
             memory_reserved = torch.cuda.memory_reserved(i) / (1024**3)
             memory_allocated = torch.cuda.memory_allocated(i) / (1024**3)
             
