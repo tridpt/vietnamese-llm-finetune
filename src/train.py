@@ -19,10 +19,9 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     BitsAndBytesConfig,
-    TrainingArguments,
 )
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-from trl import SFTTrainer
+from trl import SFTTrainer, SFTConfig
 
 from src.data_preparation import load_and_prepare_dataset, preview_dataset
 from src.utils import (
@@ -195,7 +194,7 @@ def train(config: dict) -> None:
     preview_dataset(train_dataset, num_examples=2)
     
     # ── Step 5: Training arguments ──
-    training_args = TrainingArguments(
+    training_args = SFTConfig(
         output_dir=output_dir,
         num_train_epochs=train_cfg.get("num_train_epochs", 3),
         per_device_train_batch_size=train_cfg.get("per_device_train_batch_size", 4),
