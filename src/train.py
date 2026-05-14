@@ -73,7 +73,7 @@ def load_quantized_model(config: dict):
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=bnb_config,
-        torch_dtype=torch_dtype,
+        dtype=torch_dtype,
         device_map="auto",
         attn_implementation=model_cfg.get("attn_implementation", None),
         trust_remote_code=model_cfg.get("trust_remote_code", False),

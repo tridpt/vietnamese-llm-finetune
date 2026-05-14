@@ -9,7 +9,7 @@
 model:
   name: "Qwen/Qwen2.5-7B-Instruct"      # Base model from HuggingFace
   torch_dtype: "bfloat16"                  # Computation dtype
-  attn_implementation: "flash_attention_2"  # Use FlashAttention-2 for speed
+  attn_implementation: "sdpa"                # Scaled Dot Product Attention (built-in PyTorch)
   trust_remote_code: true
 
 # --- Quantization (4-bit QLoRA) ---
