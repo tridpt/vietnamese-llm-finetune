@@ -139,6 +139,23 @@ def load_and_prepare_dataset(
             remove_columns=columns,
             desc="Formatting (Alpaca → messages)",
         )
+    elif "instruction_vi" in columns and "output_vi" in columns:
+        print("   ↳ Detected Vietnamese Alpaca format (instruction_vi/input_vi/output_vi)")
+        # Rename Vietnamese columns to standard Alpaca format
+        dataset = dataset.rename_columns({
+            "instruction_vi": "instruction",
+            "input_vi": "input",
+            "output_vi": "output",
+        })
+        # Remove leftover English columns
+        cols_to_remove = [c for c in dataset.column_names if c not in ("instruction", "input", "output")]
+        if cols_to_remove:
+            dataset = dataset.remove_columns(cols_to_remove)
+        dataset = dataset.map(
+            format_instruction_alpaca,
+            remove_columns=dataset.column_names,
+            desc="Formatting (Vietnamese Alpaca → messages)",
+        )
     elif "conversations" in columns:
         print("   ↳ Detected Chat format (conversations)")
         dataset = dataset.map(
@@ -148,8 +165,8 @@ def load_and_prepare_dataset(
         )
     else:
         raise ValueError(
-            f"Unknown dataset format. Expected columns with 'instruction'/'output' "
-            f"or 'conversations', but got: {columns}"
+            f"Unknown dataset format. Expected columns with 'instruction'/'output', "
+            f"'instruction_vi'/'output_vi', or 'conversations', but got: {columns}"
         )
     
     # Split into train and eval
