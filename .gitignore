@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Training outputs (large files)
+outputs/
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# Data cache
+data/*
+!data/.gitkeep
+
+# HuggingFace cache
+.cache/
+
+# Weights & Biases
+wandb/
+
+# Environment
+.env
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

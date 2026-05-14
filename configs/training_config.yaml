@@ -1,0 +1,91 @@
+# ============================================================
+# Vietnamese LLM Fine-tuning Configuration
+# ============================================================
+# This config is optimized for Google Colab Pro (A100 40GB)
+# Adjust batch_size and gradient_accumulation for other GPUs
+# ============================================================
+
+# --- Model Configuration ---
+model:
+  name: "Qwen/Qwen2.5-7B-Instruct"      # Base model from HuggingFace
+  torch_dtype: "bfloat16"                  # Computation dtype
+  attn_implementation: "flash_attention_2"  # Use FlashAttention-2 for speed
+  trust_remote_code: true
+
+# --- Quantization (4-bit QLoRA) ---
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"              # NormalFloat4 quantization
+  bnb_4bit_compute_dtype: "bfloat16"
+  bnb_4bit_use_double_quant: true         # Nested quantization for memory savings
+
+# --- LoRA Configuration ---
+lora:
+  r: 64                                    # LoRA rank (higher = more params)
+  lora_alpha: 128                          # LoRA alpha (scaling factor)
+  lora_dropout: 0.05                       # Dropout for regularization
+  target_modules:                           # Modules to apply LoRA
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+# --- Dataset Configuration ---
+dataset:
+  name: "5CD-AI/Vietnamese-alpaca-gpt4-gg-translated"  # Vietnamese instruction dataset
+  split: "train"
+  max_samples: null                         # Set to int to limit samples (e.g., 1000 for testing)
+  test_size: 0.05                           # 5% for evaluation
+  seed: 42
+
+# --- Training Hyperparameters ---
+training:
+  output_dir: "outputs/qlora-vi-qwen2.5-7b"
+  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4            # Effective batch = 4 * 4 = 16
+  learning_rate: 2.0e-4
+  weight_decay: 0.01
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  max_seq_length: 2048
+  
+  # Precision & Optimization
+  bf16: true
+  fp16: false
+  optim: "paged_adamw_8bit"                 # 8-bit AdamW for memory efficiency
+  gradient_checkpointing: true              # Trade compute for memory
+  
+  # Logging
+  logging_steps: 10
+  eval_strategy: "steps"
+  eval_steps: 100
+  save_strategy: "steps"
+  save_steps: 200
+  save_total_limit: 3                       # Keep only last 3 checkpoints
+  
+  # Misc
+  group_by_length: true                     # Group similar lengths for efficiency
+  report_to: "wandb"                        # Set to "none" to disable W&B
+  seed: 42
+
+# --- Generation Config (for inference) ---
+generation:
+  max_new_tokens: 512
+  temperature: 0.7
+  top_p: 0.9
+  top_k: 50
+  repetition_penalty: 1.1
+  do_sample: true
+
+# --- Push to Hub ---
+hub:
+  push_to_hub: false                        # Set true after training
+  hub_model_id: null                        # e.g., "your-username/vi-qwen2.5-7b-qlora"
+  hub_token: null                           # Your HF token (or use huggingface-cli login)
