@@ -102,33 +102,22 @@ def load_quantized_model(config: dict):
 #  LoRA Configuration
 # ──────────────────────────────────────────────
 
-def setup_lora(model, config: dict):
+def create_lora_config(config: dict) -> LoraConfig:
     """
-    Apply LoRA (Low-Rank Adaptation) adapters to the model.
-    
-    LoRA freezes the original weights and injects small trainable
-    matrices, reducing trainable parameters by ~97%.
+    Create LoRA configuration (SFTTrainer will apply it to the model).
     
     Args:
-        model: The quantized base model.
         config: Full configuration dictionary.
     
     Returns:
-        Model with LoRA adapters applied.
+        LoraConfig instance.
     """
     lora_cfg = config["lora"]
     
-    print(f"🔧 Applying LoRA adapters...")
+    print(f"🔧 LoRA config prepared:")
     print(f"   ↳ Rank: {lora_cfg['r']}, Alpha: {lora_cfg['lora_alpha']}")
     print(f"   ↳ Target modules: {lora_cfg['target_modules']}")
     
-    # Prepare model for k-bit training
-    model = prepare_model_for_kbit_training(
-        model,
-        use_gradient_checkpointing=config["training"].get("gradient_checkpointing", True),
-    )
-    
-    # Configure LoRA
     peft_config = LoraConfig(
         r=lora_cfg["r"],
         lora_alpha=lora_cfg["lora_alpha"],
@@ -138,11 +127,7 @@ def setup_lora(model, config: dict):
         task_type=lora_cfg.get("task_type", "CAUSAL_LM"),
     )
     
-    # Apply LoRA
-    model = get_peft_model(model, peft_config)
-    
-    print(f"✅ LoRA adapters applied!")
-    return model, peft_config
+    return peft_config
 
 
 # ──────────────────────────────────────────────
@@ -179,8 +164,8 @@ def train(config: dict) -> None:
     # ── Step 2: Load model ──
     model, tokenizer = load_quantized_model(config)
     
-    # ── Step 3: Apply LoRA ──
-    model, peft_config = setup_lora(model, config)
+    # ── Step 3: Prepare LoRA config (SFTTrainer will apply it) ──
+    peft_config = create_lora_config(config)
     print_model_info(model)
     
     # ── Step 4: Load dataset ──
